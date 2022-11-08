@@ -21,8 +21,14 @@ Output
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
 
       <h1 class="pt-5 pb-2">Welcome to the frontend for data visualization</h1>
+      {{ plot_url }}
+      {% for table in tables %}
+            {{titles[loop.index - 1]}}
+            {{titles[loop.index]}}
+            {{ table|safe }}
+       {% endfor %}
 
-      <p class="pt-5"><strong>{{ yno }}</strong></p>
+      <!-- <p class="pt-5"><strong></strong></p> -->
 
     </div>
   </div>
