@@ -3,11 +3,30 @@
 
 {% block styles %}
 {{ super() }}
-	<style>
-		body { background: #e8f1f9; }
-	</style>
+<style>
+  body { background: #e8f1f9; }
+  .alert {
+    padding: 20px;
+    background-color: #f44336;
+    color: white;
+  }
+  
+  .closebtn {
+    margin-left: 15px;
+    color: white;
+    font-weight: bold;
+    float: right;
+    font-size: 22px;
+    line-height: 20px;
+    cursor: pointer;
+    transition: 0.3s;
+  }
+  
+  .closebtn:hover {
+    color: black;
+  }
+</style>
 {% endblock %}
-
 
 {% block title %}
 Home
@@ -15,7 +34,12 @@ Home
 
 
 {% block content %}
-
+{% if message %} 
+      <div class="alert">
+        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+        <strong>Warning:</strong> {{message}}
+      </div>
+      {%endif %}
 <div class="container">
   <div class="row">
     <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
@@ -28,8 +52,9 @@ Home
       </p>
 
       {{ wtf.quick_form(form) }}
+      
 
-      <p class="pt-5"><strong>{{ message }}</strong></p>
+      <!-- <p class="pt-5"><strong>{{ message }}</strong></p> -->
 
     </div>
   </div>

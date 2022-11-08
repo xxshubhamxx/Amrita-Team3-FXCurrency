@@ -7,9 +7,7 @@ from wtforms import StringField, SubmitField, SelectMultipleField, widgets
 from wtforms.validators import DataRequired
 import os
 import pandas as pd
-
 import io
-import random
 from flask import Response
 from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 from matplotlib.figure import Figure

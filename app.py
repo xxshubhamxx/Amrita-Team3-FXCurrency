@@ -47,6 +47,9 @@ def index1():
         dt1 = form.dt1.data
         dt2 = form.dt2.data
         
+        if dt1>=dt2:
+            return render_template('index.html', form=form, message="Please enter a valid date range")
+        
         df = df[[cur1,'Date']]
         df.dropna(inplace=True)
         df['Date'] = pd.to_datetime(df['Date']).dt.date
@@ -56,7 +59,7 @@ def index1():
         df = df[(df['date'] >= dt1) & (df['date'] <= dt2)]
         # print(df)
         fig = px.line(df, x='date', y=cur1)
-        fig.show()
+        fig.show(id='graph',config= {'displaylogo': False})
         # return render_template('output.html',  tables=[df.to_html(classes='data')], titles=df.columns.values)
     
     return render_template('index.html', title='My Form', form=form, data=data)
