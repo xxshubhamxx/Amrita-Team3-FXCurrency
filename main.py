@@ -10,7 +10,6 @@ import pandas as pd
 import operator
 import plotly.express as px
 from functools import reduce
-  
 from flask_wtf.csrf import CSRFProtect
 from wtforms.csrf.core import CSRF
 from hashlib import md5
