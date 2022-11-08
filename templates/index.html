@@ -50,9 +50,21 @@ Home
         <!-- This is the index page for an example Flask app using Bootstrap and WTForms.  -->
         Please choose the Currency and Start and End dates to compare with USD
       </p>
+      <!-- {{ form.csrf_token }} -->
+      <!-- {{ form.process() }} -->
 
       {{ wtf.quick_form(form) }}
+
       
+      <!-- <form action="" method="post" class="form" role="form">
+      {% for field in form %}
+    <tr>
+        <th>{{ field.label }} {% if field.flags.required %}*{% endif %}</th>
+        <td>{{ field }}</td>
+        <br>
+    </tr>
+{% endfor %}
+      </form> -->
 
       <!-- <p class="pt-5"><strong>{{ message }}</strong></p> -->
 

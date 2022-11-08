@@ -19,7 +19,7 @@ def get_files():
         files.append(file)
     return files
 
-def get_choices():
+def get_merged_df():
     data = get_files()
     df = pd.read_csv(os.path.join(os.getcwd(),"Currency_Conversion_Test_Data",data[0]))
     data.pop(0)
@@ -29,7 +29,7 @@ def get_choices():
     return df
 
 class NameForm(FlaskForm):
-    cur1 = SelectField(u'Select Currency 1:', choices=get_choices().columns[1:], render_kw={'style': 'width: 30ch; height: 5ch;'})
+    cur1 = SelectField(u'Select Currency 1:', choices=get_merged_df().columns[1:], render_kw={'style': 'width: 30ch; height: 5ch;'})
     dt1 = DateField('DatePicker', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
     dt2 = DateField('DatePicker', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
     submit = SubmitField('Submit')
@@ -38,7 +38,7 @@ class NameForm(FlaskForm):
 def index1():
     form = NameForm()
     data = get_files()
-    df = get_choices()
+    df = get_merged_df()
 
     if form.validate_on_submit():
         
@@ -58,8 +58,10 @@ def index1():
                 
         df = df[(df['date'] >= dt1) & (df['date'] <= dt2)]
         # print(df)
-        fig = px.line(df, x='date', y=cur1)
-        fig.show(id='graph',config= {'displaylogo': False})
+        fig = px.line(df, x='date', y=cur1,  labels={'date' : f' {cur1} <br> Date' },
+                 title=f'U.S. dollar (USD) to {cur1.strip()} from {dt1} to {dt2}')
+        fig.show(id='graph',config= {'displaylogo': False}
+                )
         # return render_template('output.html',  tables=[df.to_html(classes='data')], titles=df.columns.values)
     
     return render_template('index.html', title='My Form', form=form, data=data)
