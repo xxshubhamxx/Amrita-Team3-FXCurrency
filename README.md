@@ -132,14 +132,31 @@ Submission Guidelines can be seen [here](GitHub Submission Guidelines.pdf)
             title=title_str)
         
     elif interval == 'monthly':
-        year_df=df.groupby('year', as_index=False)[currency].mean()
-        month_df=df.groupby('month', as_index=False)[currency].mean()
+        month_df=df.groupby(['month','year'], as_index=False)[currency].mean()
+        def make_date(months):
+            a = []
+            for month in months:
+                month = str(month)
+                mn = month[-3:]
+                yr = month[0:4]
+                mn = datetime.strptime(mn, '%b').month
+                ans = f'01-{mn}-{yr}'
+                a.append(datetime.strptime(ans, '%d-%m-%Y').date())
+            return a
+        month_df['date'] = make_date(month_df['month'])
         month_df = month_df[(month_df['date'] >= start_date) & (month_df['date'] <= end_date)]
         fig = px.line(month_df, x='month', y=currency,  labels={'month' : f'Month' , currency: f'{currency_name} ({currency_code})' },
             title=title_str)
         
     elif interval == 'yearly':
         year_df=df.groupby('year', as_index=False)[currency].mean()
+        def make_date(year):
+            a = []
+            for yr in year:
+                ans = f'01-06-{yr}'
+                a.append(datetime.strptime(ans, '%d-%m-%Y').date())
+            return a
+        year_df['date'] = make_date(year_df['year'])
         year_df = year_df[(year_df['date'] >= start_date) & (year_df['date'] <= end_date)]
         fig = px.line(year_df, x='year', y=currency,  labels={'year' : f'Year' , currency: f'{currency_name} ({currency_code})' },
             title=title_str)
@@ -265,17 +282,17 @@ Submission Guidelines can be seen [here](GitHub Submission Guidelines.pdf)
 
 ### Outputs:
 
-    ![plot](images/Output1.png)
-    ![plot](images/Output2.png)
+![plot](images/Output1.png)
+![plot](images/Output2.png)
+![plot](images/Output3.png)
 
 
 ### Future Plans:
 
-    - Creating an API to access this user interface.
-    - Adding functionality to compare 2 currencies with each other by plotting line graph of their ratio for the selected time period.
-    - Creating a component to provide Exchange rate of all currencies with respect to a single base currency by taking ratio of each currency with respect to the base currency.
-    - Showing the output graph in the same page and allowing user to change attributes and view the changes in real time.
-    - Adding functionality to convert a currency to another currency by taking the exchange rate of the selected currency and multiplying it with the amount entered by the user.
-    - Creating a component to display all currencies along with the short code, description, and current exchange rate with respect to USD.
-    - Automating uploading of exchange rate data to the database by using a web scheduler.
-    
+- Creating an API to access this user interface.
+- Adding functionality to compare 2 currencies with each other by plotting line graph of their ratio for the selected time period.
+- Creating a component to provide Exchange rate of all currencies with respect to a single base currency by taking ratio of each currency with respect to the base currency.
+- Showing the output graph in the same page and allowing user to change attributes and view the changes in real time.
+- Adding functionality to convert a currency to another currency by taking the exchange rate of the selected currency and multiplying it with the amount entered by the user.
+- Creating a component to display all currencies along with the short code, description, and current exchange rate with respect to USD.
+- Automating uploading of exchange rate data to the database by using a web scheduler.

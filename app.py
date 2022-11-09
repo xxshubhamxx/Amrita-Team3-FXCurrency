@@ -2,6 +2,7 @@ from flask import Flask
 from flask import render_template
 from flask_bootstrap import Bootstrap
 from flask_wtf import FlaskForm
+from datetime import datetime
 from wtforms import SubmitField
 from wtforms import SelectField
 from wtforms.fields.html5 import DateField
@@ -82,15 +83,32 @@ def index():
                 title=title_str)
             
         elif interval == 'monthly':
-            year_df=df.groupby('year', as_index=False)[currency].mean()
-            month_df=df.groupby('month', as_index=False)[currency].mean()
-            # month_df = month_df[(month_df['date'] >= start_date) & (month_df['date'] <= end_date)]
+            month_df=df.groupby(['month','year'], as_index=False)[currency].mean()
+            def make_date(months):
+                a = []
+                for month in months:
+                    month = str(month)
+                    mn = month[-3:]
+                    yr = month[0:4]
+                    mn = datetime.strptime(mn, '%b').month
+                    ans = f'01-{mn}-{yr}'
+                    a.append(datetime.strptime(ans, '%d-%m-%Y').date())
+                return a
+            month_df['date'] = make_date(month_df['month'])
+            month_df = month_df[(month_df['date'] >= start_date) & (month_df['date'] <= end_date)]
             fig = px.line(month_df, x='month', y=currency,  labels={'month' : f'Month' , currency: f'{currency_name} ({currency_code})' },
                 title=title_str)
             
         elif interval == 'yearly':
             year_df=df.groupby('year', as_index=False)[currency].mean()
-            # year_df = year_df[(year_df['date'] >= start_date) & (year_df['date'] <= end_date)]
+            def make_date(year):
+                a = []
+                for yr in year:
+                    ans = f'01-06-{yr}'
+                    a.append(datetime.strptime(ans, '%d-%m-%Y').date())
+                return a
+            year_df['date'] = make_date(year_df['year'])
+            year_df = year_df[(year_df['date'] >= start_date) & (year_df['date'] <= end_date)]
             fig = px.line(year_df, x='year', y=currency,  labels={'year' : f'Year' , currency: f'{currency_name} ({currency_code})' },
                 title=title_str)
             fig.update_traces(mode="markers+lines")
@@ -100,6 +118,7 @@ def index():
         fig.update_traces(hovertemplate =
             '1 USD = <b> %{y:.2f} </b>'+ f'{currency_code}'+
             '<br>in: %{x}<br>')
+        # To add custom text to every hover label, add this to the hovertemplate:
             # '<b>%{text}</b>',
             # text = [c_code for i in range(len(fig.data[0].x))]
             
