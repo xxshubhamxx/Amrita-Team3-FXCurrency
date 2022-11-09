@@ -32,36 +32,37 @@ def get_merged_df():
     return df
 
 class NameForm(FlaskForm):
-    cur1 = SelectField(u'Select Currency:', choices=get_merged_df().columns[1:], render_kw={'style': 'width: 30ch; height: 5ch;'})
-    dt1 = DateField('Enter Start Date', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
-    dt2 = DateField('Enter End Date', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
+    currency = SelectField(u'Select Currency:', choices=get_merged_df().columns[1:], render_kw={'style': 'width: 30ch; height: 5ch;'})
+    start_date = DateField('Enter Start Date', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
+    end_date = DateField('Enter End Date', format='%Y-%m-%d', render_kw={'style': 'width: 30ch; height: 5ch;'})
     interval = SelectField(u'Select Interval:', choices=['daily','monthly','yearly'], render_kw={'style': 'width: 30ch; height: 5ch;'})
     submit = SubmitField('Submit')
 
-def get_cur_str(val):
-    val = str(val)
-    return val[1:-5]
+def get_cur_str(currency_string):
+    currency_string = str(currency_string)
+    return currency_string[0:-7]
 
-def get_cur_code(val):
-    val = str(val)
-    return val[-4:-1]
+def get_cur_code(currency_string):
+    currency_string = str(currency_string)
+    return currency_string[-4:-1]
  
 @app.route('/', methods=['GET', 'POST'])
-def index1():
+def index():
     form = NameForm()
     df = get_merged_df()
 
     if form.validate_on_submit():
         
-        cur1 = form.cur1.data
-        dt1 = form.dt1.data
-        dt2 = form.dt2.data
+        currency = form.currency.data
+        start_date = form.start_date.data
+        end_date = form.end_date.data
         interval = form.interval.data
-        
-        if dt1>=dt2:
+        currency_name = get_cur_str(currency.strip())
+        currency_code = get_cur_code(currency.strip())
+        if start_date>=end_date:
             return render_template('index.html', form=form, message="Please enter a valid date range")
         
-        df = df[[cur1,'Date']]
+        df = df[[currency,'Date']]
         df.dropna(inplace=True)
         df['Date'] = pd.to_datetime(df['Date']).dt.date
         df['date'] = df['Date']
@@ -71,29 +72,33 @@ def index1():
         df['month'] = pd.DatetimeIndex(df['date']).month
         df['month'] = df['month'].apply(lambda x: calendar.month_abbr[x])
         df['month'] = df['year'].astype(str) +", "+ df['month'].astype(str)
-         
-        year_df=df.groupby('year', as_index=False)[cur1].mean()
-        month_df=df.groupby('month', as_index=False)[cur1].mean()
         
-        df = df[(df['date'] >= dt1) & (df['date'] <= dt2)]
+        df = df[(df['date'] >= start_date) & (df['date'] <= end_date)]
         
-        c_code = get_cur_code(f'{cur1.strip()}')
+        title_str = f'U.S. dollar (USD) to {currency_name} ({currency_code}) from {start_date} to {end_date}'
 
         if interval == 'daily':
-            fig = px.line(df, x='date', y=cur1,  labels={'date' : f'Date' },
-                 title=f'U.S. dollar (USD) to {cur1.strip()} from {dt1} to {dt2}')
+            fig = px.line(df, x='date', y=currency,  labels={'date' : f'Date', currency: f'{currency_name} ({currency_code})' },
+                title=title_str)
+            
         elif interval == 'monthly':
-            fig = px.line(month_df, x='month', y=cur1,  labels={'month' : f'Month' },
-                 title=f'U.S. dollar (USD) to {cur1.strip()} from {dt1} to {dt2}')
+            year_df=df.groupby('year', as_index=False)[currency].mean()
+            month_df=df.groupby('month', as_index=False)[currency].mean()
+            # month_df = month_df[(month_df['date'] >= start_date) & (month_df['date'] <= end_date)]
+            fig = px.line(month_df, x='month', y=currency,  labels={'month' : f'Month' , currency: f'{currency_name} ({currency_code})' },
+                title=title_str)
+            
         elif interval == 'yearly':
-            fig = px.line(year_df, x='year', y=cur1,  labels={'year' : f'Year' },
-                 title=f'U.S. dollar (USD) to {cur1.strip()} from {dt1} to {dt2}')
+            year_df=df.groupby('year', as_index=False)[currency].mean()
+            # year_df = year_df[(year_df['date'] >= start_date) & (year_df['date'] <= end_date)]
+            fig = px.line(year_df, x='year', y=currency,  labels={'year' : f'Year' , currency: f'{currency_name} ({currency_code})' },
+                title=title_str)
             fig.update_traces(mode="markers+lines")
         else:
             return render_template('index.html', form=form, message="Please enter a valid interval")
         
         fig.update_traces(hovertemplate =
-            '1 USD = <b> %{y:.2f} </b>'+ f'{c_code}'+
+            '1 USD = <b> %{y:.2f} </b>'+ f'{currency_code}'+
             '<br>in: %{x}<br>')
             # '<b>%{text}</b>',
             # text = [c_code for i in range(len(fig.data[0].x))]
