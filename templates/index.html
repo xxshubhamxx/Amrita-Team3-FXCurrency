@@ -1,75 +1,62 @@
 {% extends 'bootstrap/base.html' %}
 {% import "bootstrap/wtf.html" as wtf %}
+{% block head %}
+  {{ super() }}
 
-{% block styles %}
-{{ super() }}
-<style>
-  body { background: #e8f1f9; }
-  .alert {
-    padding: 20px;
-    background-color: #f44336;
-    color: white;
-  }
-  
-  .closebtn {
-    margin-left: 15px;
-    color: white;
-    font-weight: bold;
-    float: right;
-    font-size: 22px;
-    line-height: 20px;
-    cursor: pointer;
-    transition: 0.3s;
-  }
-  
-  .closebtn:hover {
-    color: black;
-  }
-</style>
+  {% block styles %}
+  {{ super() }}
+  <style>
+    body { background: #e8f1f9; }
+    .alert {
+      padding: 20px;
+      background-color: #f44336;
+      color: white;
+    }
+    
+    .closebtn {
+      margin-left: 15px;
+      color: white;
+      font-weight: bold;
+      float: right;
+      font-size: 22px;
+      line-height: 20px;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+    
+    .closebtn:hover {
+      color: black;
+    }
+  </style>
+  {% endblock %}
 {% endblock %}
-
-{% block title %}
-Home
-{% endblock %}
-
 
 {% block content %}
-{% if message %} 
-      <div class="alert">
-        <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
-        <strong>Warning:</strong> {{message}}
-      </div>
-      {%endif %}
-<div class="container">
-  <div class="row">
-    <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
 
-      <h1 class="pt-5 pb-2">Welcome to the data visualization</h1>
+  {% if message %} 
+        <div class="alert">
+          <span class="closebtn" onclick="this.parentElement.style.display='none';">&times;</span> 
+          <strong>Warning:</strong> {{message}}
+        </div>
+  {%endif %}
 
-      <p class="lead">
-        <!-- This is the index page for an example Flask app using Bootstrap and WTForms.  -->
-        Please choose the Currency and Start and End dates to compare with USD
-      </p>
-      <!-- {{ form.csrf_token }} -->
-      <!-- {{ form.process() }} -->
+  <div class="container">
+    <div class="row">
+      <div class="col-md-10 col-lg-8 mx-lg-auto mx-md-auto">
 
-      {{ wtf.quick_form(form) }}
+        <h1 class="pt-5 pb-2">Foreign Exchange</h1>
 
-      
-      <!-- <form action="" method="post" class="form" role="form">
-      {% for field in form %}
-    <tr>
-        <th>{{ field.label }} {% if field.flags.required %}*{% endif %}</th>
-        <td>{{ field }}</td>
-        <br>
-    </tr>
-{% endfor %}
-      </form> -->
+        <p class="lead">
+          Please choose the filters and currency to compare with USD
+        </p>
 
-      <!-- <p class="pt-5"><strong>{{ message }}</strong></p> -->
+        {{ wtf.quick_form(form) }}
 
+        
     </div>
   </div>
+  <div id="plot"></div>
 </div>
+<!-- <iframe srcdoc = {{plot}}> </iframe> -->
 
 {% endblock %}
